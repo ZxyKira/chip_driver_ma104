@@ -17,18 +17,29 @@ extern "C"{
 
 #include "fw_usart.h"
 #include "fw_io_pin.h"
+#include "tool_ring_buffer.h"
 
 /* *****************************************************************************************
  *    Type define list
  */ 
+typedef struct _mcu_framework_driver_ma104_handle_memory_t mcu_framework_driver_ma104_handle_memory_t;
+ 
+typedef void(*mcu_framework_driver_ma104_execute_t)(mcu_framework_driver_ma104_handle_memory_t* _this, fw_memory_t* data, void* attachment);
+ 
 typedef struct _mcu_framework_driver_ma104_handle_memory_t{ 
   fw_usart_handle_t*  fw_usart;
 	fw_io_pin_handle_t* fw_pin_usbok;
 	fw_io_pin_handle_t* fw_pin_reset;
-	fw_memory_t usart_txd_memory;
-	fw_memory_t usart_rxd_memory;
-	fw_memory_t receiverBuffer;
+	tool_ring_buffer_t ringBuffer;
 	uint32_t flag;
+	
+	struct{
+		fw_memory_t memory;
+		uint32_t pointer;
+		void* attachment;
+		mcu_framework_driver_ma104_execute_t execute;
+	}transfer;
+	
 	uint8_t xferCache[10];
 }mcu_framework_driver_ma104_handle_memory_t;
 /* *****************************************************************************************
