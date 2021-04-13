@@ -15,26 +15,26 @@ extern "C"{
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "fw_usart.h"
+#include "fw_io_pin.h"
 
 /* *****************************************************************************************
  *    Type define list
  */ 
-
+typedef struct _mcu_framework_driver_ma104_handle_memory_t{ 
+  fw_usart_handle_t*  fw_usart;
+	fw_io_pin_handle_t* fw_pin_usbok;
+	fw_io_pin_handle_t* fw_pin_reset;
+	fw_memory_t usart_txd_memory;
+	fw_memory_t usart_rxd_memory;
+	fw_memory_t receiverBuffer;
+	uint32_t flag;
+	uint8_t xferCache[10];
+}mcu_framework_driver_ma104_handle_memory_t;
 /* *****************************************************************************************
  *    Function Type
  */ 
 
-/* *****************************************************************************************
- *    Struct - tool_timer_scheduler_task_t
- */ 
-
-/* *****************************************************************************************
- *    Struct - tool_timer_scheduler_memory_t
- */ 
-
-/* *****************************************************************************************
- *    Struct - tool_timer_scheduler_api_t
- */ 
 
 /* *****************************************************************************************
  *    API List

@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\source;..\include</IncludePath>
+              <IncludePath>..\source;..\include;..\reference\mcu_framework\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -396,6 +396,46 @@
               <FileName>mcu_framework_driver_ma104.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\include\mcu_framework_driver_ma104.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>reference_mcu_framework</GroupName>
+          <Files>
+            <File>
+              <FileName>fw_base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\include\fw_base.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_io.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\include\fw_io.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_io_pin.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\include\fw_io_pin.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_ioint.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\include\fw_ioint.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_spim.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\include\fw_spim.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_timer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\include\fw_timer.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_usart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\include\fw_usart.h</FilePath>
             </File>
           </Files>
         </Group>
