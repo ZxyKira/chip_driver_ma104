@@ -168,6 +168,7 @@ bool mcu_framework_driver_ma104_init(mcu_framework_driver_ma104_memory_t* _this,
 	
 	memset(_this, 0x00, sizeof(mcu_framework_driver_ma104_memory_t));
 	
+	_this->fw_usart = usart;
 	_this->fw_pin_usbok = usbok;
 	_this->fw_pin_reset	= reset;
 	
