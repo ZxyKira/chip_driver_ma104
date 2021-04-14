@@ -1,7 +1,7 @@
 /* *****************************************************************************************
  *    File Name   :mcu_framework_driver_ma104.h
  *    Create Date :2021-04-13
- *    Modufy Date :
+ *    Modufy Date :2021-04-14
  *    Information :
  */
  
@@ -29,44 +29,44 @@ typedef void(*mcu_framework_driver_ma104_event_hardwareBusy_t)(mcu_framework_dri
  
 typedef struct _mcu_framework_driver_ma104_memory_t{ 
   fw_usart_handle_t*  fw_usart;
-	fw_io_pin_handle_t* fw_pin_usbok;
-	fw_io_pin_handle_t* fw_pin_reset;
-	tool_ring_buffer_t ringBuffer;
-	uint16_t initFlag;
-	uint16_t flag;
-	
-	struct{
-		fw_memory_t memory;
-		uint32_t pointer;
-		void* attachment;
-		mcu_framework_driver_ma104_execute_t execute;
-	}transfer;
-	
-	struct{
-	  mcu_framework_driver_ma104_event_hardwareBusy_t hardwareBusy;
-	}event;
-	
-	uint8_t transferCache[10];
-	uint8_t receiverCache;
+  fw_io_pin_handle_t* fw_pin_usbok;
+  fw_io_pin_handle_t* fw_pin_reset;
+  tool_ring_buffer_t ringBuffer;
+  uint16_t initFlag;
+  uint16_t flag;
+  
+  struct{
+    fw_memory_t memory;
+    uint32_t pointer;
+    void* attachment;
+    mcu_framework_driver_ma104_execute_t execute;
+  }transfer;
+  
+  struct{
+    mcu_framework_driver_ma104_event_hardwareBusy_t hardwareBusy;
+  }event;
+  
+  uint8_t transferCache[10];
+  uint8_t receiverCache;
 }mcu_framework_driver_ma104_memory_t;
 
 typedef struct _mcu_framework_driver_ma104_api_t{
-	bool     (*init)(mcu_framework_driver_ma104_memory_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset);
-	bool     (*receiverEnable)(mcu_framework_driver_ma104_memory_t* _this, void* buffer, uint32_t size);
-	bool     (*receiverDisable)(mcu_framework_driver_ma104_memory_t* _this);
-	bool     (*write)(mcu_framework_driver_ma104_memory_t* _this, fw_memory_t* data, mcu_framework_driver_ma104_execute_t execute, void* attachment);
-	bool     (*writeByte)(mcu_framework_driver_ma104_memory_t* _this, uint8_t data);
-	uint32_t (*read)(mcu_framework_driver_ma104_memory_t* _this, void *buffer, uint32_t size);
-	bool     (*readByte)(mcu_framework_driver_ma104_memory_t* _this, uint8_t* buffer);
-	uint32_t (*getReceiverCount)(mcu_framework_driver_ma104_memory_t* _this);
-	bool     (*isBusy)(mcu_framework_driver_ma104_memory_t* _this);
-	bool     (*reset)(mcu_framework_driver_ma104_memory_t* _this);
-	bool     (*beginTransfer)(mcu_framework_driver_ma104_memory_t* _this);
-	bool     (*isHardwareBusy)(mcu_framework_driver_ma104_memory_t* _this);
-	
-	struct{
-		bool (*setHardwareBusy)(mcu_framework_driver_ma104_memory_t* _this, mcu_framework_driver_ma104_event_hardwareBusy_t event);
-	}event;
+  bool     (*init)(mcu_framework_driver_ma104_memory_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset);
+  bool     (*receiverEnable)(mcu_framework_driver_ma104_memory_t* _this, void* buffer, uint32_t size);
+  bool     (*receiverDisable)(mcu_framework_driver_ma104_memory_t* _this);
+  bool     (*write)(mcu_framework_driver_ma104_memory_t* _this, fw_memory_t* data, mcu_framework_driver_ma104_execute_t execute, void* attachment);
+  bool     (*writeByte)(mcu_framework_driver_ma104_memory_t* _this, uint8_t data);
+  uint32_t (*read)(mcu_framework_driver_ma104_memory_t* _this, void *buffer, uint32_t size);
+  bool     (*readByte)(mcu_framework_driver_ma104_memory_t* _this, uint8_t* buffer);
+  uint32_t (*getReceiverCount)(mcu_framework_driver_ma104_memory_t* _this);
+  bool     (*isBusy)(mcu_framework_driver_ma104_memory_t* _this);
+  bool     (*reset)(mcu_framework_driver_ma104_memory_t* _this);
+  bool     (*beginTransfer)(mcu_framework_driver_ma104_memory_t* _this);
+  bool     (*isHardwareBusy)(mcu_framework_driver_ma104_memory_t* _this);
+  
+  struct{
+    bool (*setHardwareBusy)(mcu_framework_driver_ma104_memory_t* _this, mcu_framework_driver_ma104_event_hardwareBusy_t event);
+  }event;
 }mcu_framework_driver_ma104_api_t;
 /* *****************************************************************************************
  *    Function Type
