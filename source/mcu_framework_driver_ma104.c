@@ -66,7 +66,7 @@ static bool mcu_framework_driver_ma104_autoTransfer(mcu_framework_driver_ma104_m
 
 
 static bool mcu_framework_driver_ma104_writeCache(uint8_t* cache, uint8_t* data, uint8_t len){
-  if(len >= 6)
+  if(len > 6)
     return false;
   
   int i;
