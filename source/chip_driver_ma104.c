@@ -1,18 +1,21 @@
 /* *****************************************************************************************
- *    File Name   :mcu_framework_driver_ma104.c
+ *    File Name   :chip_driver_ma104.c
  *    Create Date :2021-04-13
- *    Modufy Date :2021-04-14
+ *    Modufy Date :2021-04-60
  *    Information :
  */
 
+/* *****************************************************************************************
+ *    Include
+ */ 
 #include <string.h>
 
-#include "mcu_framework_driver_ma104.h"
-
+#include "chip_driver_ma104.h"
+#include "tool_ring_buffer.h"
 #include "fw_usart.h"
 #include "fw_io_pin.h"
 
-#include "tool_ring_buffer.h"
+
 
 /* *****************************************************************************************
  *    Macro
@@ -33,39 +36,51 @@
 #else
 #define DEBUG_CHECK_POINTER(pointer, action) if(!pointer) action
 #endif
-/* *****************************************************************************************
- *    Parameter
- */
- 
-/* *****************************************************************************************
- *    Type/Structure
- */ 
- 
+
+
+
 /* *****************************************************************************************
  *    Extern Function/Variable
  */
 
-bool mcu_framework_driver_ma104_reset(mcu_framework_driver_ma104_memory_t* _this);
-bool mcu_framework_driver_ma104_isHardwareBusy(mcu_framework_driver_ma104_memory_t* _this);
-static bool mcu_framework_driver_ma104_autoTransfer(mcu_framework_driver_ma104_memory_t* _this, fw_memory_t* sendMemory);
+bool chip_driver_ma104_reset(chip_driver_ma104_memory_t* _this);
+bool chip_driver_ma104_isHardwareBusy(chip_driver_ma104_memory_t* _this);
+static bool chip_driver_ma104_autoTransfer(chip_driver_ma104_memory_t* _this, fw_memory_t* sendMemory);
+
+
+
 /* *****************************************************************************************
- *    Public Variable
- */
+ *    Typedef List
+ */ 
+
+/* *****************************************************************************************
+ *    Typedef Function
+ */ 
+
+/* *****************************************************************************************
+ *    Struct/Union/Enum
+ */ 
+
+/* *****************************************************************************************
+ *    Typedef Struct/Union/Enum
+ */ 
 
 /* *****************************************************************************************
  *    Private Variable
  */
 
 /* *****************************************************************************************
- *    Inline Function
+ *    Public Variable
  */
- 
+
 /* *****************************************************************************************
  *    Private Function
  */  
 
-
-static bool mcu_framework_driver_ma104_writeCache(uint8_t* cache, uint8_t* data, uint8_t len){
+/*----------------------------------------
+ *  chip_driver_ma104_writeCache
+ *----------------------------------------*/
+static bool chip_driver_ma104_writeCache(uint8_t* cache, uint8_t* data, uint8_t len){
   if(len > 6)
     return false;
   
@@ -90,9 +105,13 @@ static bool mcu_framework_driver_ma104_writeCache(uint8_t* cache, uint8_t* data,
 } 
 
 
-static void mcu_framework_driver_ma104_event_send(fw_usart_handle_t* handle, fw_memory_t* data, void* attachment){
-  mcu_framework_driver_ma104_memory_t* _this = attachment;
-  if(!mcu_framework_driver_ma104_autoTransfer(_this, data)){
+
+/*----------------------------------------
+ *  chip_driver_ma104_event_send
+ *----------------------------------------*/
+static void chip_driver_ma104_event_send(fw_usart_handle_t* handle, fw_memory_t* data, void* attachment){
+  chip_driver_ma104_memory_t* _this = attachment;
+  if(!chip_driver_ma104_autoTransfer(_this, data)){
     //transfer finish or fail
     
     //unset FLAG_BUSY
@@ -105,8 +124,13 @@ static void mcu_framework_driver_ma104_event_send(fw_usart_handle_t* handle, fw_
   }
 }
 
-static void mcu_framework_driver_ma104_event_read(fw_usart_handle_t* handle, fw_memory_t* buffer, void* attachment){
-  mcu_framework_driver_ma104_memory_t* _this = attachment;
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_event_read
+ *----------------------------------------*/
+static void chip_driver_ma104_event_read(fw_usart_handle_t* handle, fw_memory_t* buffer, void* attachment){
+  chip_driver_ma104_memory_t* _this = attachment;
   
   //is disable receiver;
   if(!(_this->flag & FLAG_RECEIVER_ENABLE))
@@ -116,15 +140,20 @@ static void mcu_framework_driver_ma104_event_read(fw_usart_handle_t* handle, fw_
   tool_ring_buffer_insert(&_this->ringBuffer, buffer->ptr);
   
   //usart read byte
-  _this->fw_usart->api->read(_this->fw_usart, buffer, mcu_framework_driver_ma104_event_read, _this);
+  _this->fw_usart->api->read(_this->fw_usart, buffer, chip_driver_ma104_event_read, _this);
   
   return;
 }
 
-static bool mcu_framework_driver_ma104_autoTransfer(mcu_framework_driver_ma104_memory_t* _this, fw_memory_t* sendMemory){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_autoTransfer
+ *----------------------------------------*/
+static bool chip_driver_ma104_autoTransfer(chip_driver_ma104_memory_t* _this, fw_memory_t* sendMemory){
   
   //check hardware busy
-  if(mcu_framework_driver_ma104_isHardwareBusy(_this)){
+  if(chip_driver_ma104_isHardwareBusy(_this)){
     
     //set FLAG_WAIT_USBOK
     _this->flag |= FLAG_WAIT_USBOK;
@@ -147,33 +176,39 @@ static bool mcu_framework_driver_ma104_autoTransfer(mcu_framework_driver_ma104_m
     transferSize = 6;
   
   //generator packet
-  mcu_framework_driver_ma104_writeCache(_this->transferCache ,&((uint8_t*)_this->transfer.memory.ptr)[_this->transfer.pointer], transferSize);
+  chip_driver_ma104_writeCache(_this->transferCache ,&((uint8_t*)_this->transfer.memory.ptr)[_this->transfer.pointer], transferSize);
   
   //add pointer
   _this->transfer.pointer += transferSize;
   
 
-  return _this->fw_usart->api->send(_this->fw_usart, sendMemory, mcu_framework_driver_ma104_event_send, _this);
+  return _this->fw_usart->api->send(_this->fw_usart, sendMemory, chip_driver_ma104_event_send, _this);
 }
+
+
 
 /* *****************************************************************************************
  *    Public Function
  */
-bool mcu_framework_driver_ma104_init(mcu_framework_driver_ma104_memory_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset){
+
+/*----------------------------------------
+ *  chip_driver_ma104_init
+ *----------------------------------------*/
+bool chip_driver_ma104_init(chip_driver_ma104_memory_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset){
   if((!_this) | (!usart))
     return false;
   
   if(MACRO_CHECK_INIT_FLAG(_this))
     return false;
   
-  memset(_this, 0x00, sizeof(mcu_framework_driver_ma104_memory_t));
+  memset(_this, 0x00, sizeof(chip_driver_ma104_memory_t));
   
   _this->fw_usart = usart;
   _this->fw_pin_usbok = usbok;
   _this->fw_pin_reset  = reset;
   
   //reset ma104
-  mcu_framework_driver_ma104_reset(_this);
+  chip_driver_ma104_reset(_this);
   
   //init usert
   if(!_this->fw_usart->api->init(_this->fw_usart))
@@ -191,12 +226,12 @@ bool mcu_framework_driver_ma104_init(mcu_framework_driver_ma104_memory_t* _this,
   return true;
 }
 
-bool mcu_framework_driver_ma104__deinit(mcu_framework_driver_ma104_memory_t* _this){
-  _this->fw_usart->api->deinit(_this->fw_usart);
-  return true;
-}
 
-bool mcu_framework_driver_ma104_receiverEnable(mcu_framework_driver_ma104_memory_t* _this, void* buffer, uint32_t size){
+
+/*----------------------------------------
+ *  chip_driver_ma104_receiverEnable
+ *----------------------------------------*/
+bool chip_driver_ma104_receiverEnable(chip_driver_ma104_memory_t* _this, void* buffer, uint32_t size){
   if(!buffer)
     return false;
   
@@ -217,7 +252,7 @@ bool mcu_framework_driver_ma104_receiverEnable(mcu_framework_driver_ma104_memory
   };
   
   //start receiver
-  if(_this->fw_usart->api->read(_this->fw_usart, &readMemory, mcu_framework_driver_ma104_event_read, _this))
+  if(_this->fw_usart->api->read(_this->fw_usart, &readMemory, chip_driver_ma104_event_read, _this))
     return true;
   
   //start receiver fail
@@ -225,7 +260,12 @@ bool mcu_framework_driver_ma104_receiverEnable(mcu_framework_driver_ma104_memory
   return false;
 }
 
-bool mcu_framework_driver_ma104_receiverDisable(mcu_framework_driver_ma104_memory_t* _this){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_receiverDisable
+ *----------------------------------------*/
+bool chip_driver_ma104_receiverDisable(chip_driver_ma104_memory_t* _this){
   //check flag FLAG_RECEIVER_ENABLE is enable; is disable return false
   if(!(_this->flag & FLAG_RECEIVER_ENABLE))
     return false;
@@ -237,7 +277,12 @@ bool mcu_framework_driver_ma104_receiverDisable(mcu_framework_driver_ma104_memor
   return _this->fw_usart->api->abortRead(_this->fw_usart);
 }
 
-bool mcu_framework_driver_ma104_write(mcu_framework_driver_ma104_memory_t* _this, fw_memory_t* data, mcu_framework_driver_ma104_execute_t execute, void* attachment){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_write
+ *----------------------------------------*/
+bool chip_driver_ma104_write(chip_driver_ma104_memory_t* _this, fw_memory_t* data, chip_driver_ma104_execute_t execute, void* attachment){
   DEBUG_CHECK_POINTER(data, return false);
   DEBUG_CHECK_POINTER(data->ptr, return false);
 
@@ -259,7 +304,7 @@ bool mcu_framework_driver_ma104_write(mcu_framework_driver_ma104_memory_t* _this
   };
   
   //try to transfer data as usart, if successful will return true
-  if(mcu_framework_driver_ma104_autoTransfer(_this, &sendMemory))
+  if(chip_driver_ma104_autoTransfer(_this, &sendMemory))
     return true;
   
   //transfer fail, unset busy
@@ -268,7 +313,12 @@ bool mcu_framework_driver_ma104_write(mcu_framework_driver_ma104_memory_t* _this
   return false;
 }
 
-bool mcu_framework_driver_ma104_writeByte(mcu_framework_driver_ma104_memory_t* _this, uint8_t data){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_writeByte
+ *----------------------------------------*/
+bool chip_driver_ma104_writeByte(chip_driver_ma104_memory_t* _this, uint8_t data){
   //check BUSY flag; is busy return false
   MACRO_IS_FLAG(_this, FLAG_BUSY, return false);
   
@@ -287,7 +337,7 @@ bool mcu_framework_driver_ma104_writeByte(mcu_framework_driver_ma104_memory_t* _
   };
   
   //try to transfer data as usart, if successful will return true
-  if(mcu_framework_driver_ma104_autoTransfer(_this, &sendMemory))
+  if(chip_driver_ma104_autoTransfer(_this, &sendMemory))
     return true;
   
   //transfer fail, unset busy
@@ -296,14 +346,24 @@ bool mcu_framework_driver_ma104_writeByte(mcu_framework_driver_ma104_memory_t* _
   return false;
 }
 
-uint32_t mcu_framework_driver_ma104_read(mcu_framework_driver_ma104_memory_t* _this, void *buffer, uint32_t size){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_read
+ *----------------------------------------*/
+uint32_t chip_driver_ma104_read(chip_driver_ma104_memory_t* _this, void *buffer, uint32_t size){
   if(tool_ring_buffer_isEmpty(&_this->ringBuffer))
     return 0;
   
   return tool_ring_buffer_popMult(&_this->ringBuffer, buffer, size);
 }
 
-bool mcu_framework_driver_ma104_readByte(mcu_framework_driver_ma104_memory_t* _this, uint8_t* buffer){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_readByte
+ *----------------------------------------*/
+bool chip_driver_ma104_readByte(chip_driver_ma104_memory_t* _this, uint8_t* buffer){
   if(tool_ring_buffer_isEmpty(&_this->ringBuffer))
     return false;
   
@@ -313,16 +373,31 @@ bool mcu_framework_driver_ma104_readByte(mcu_framework_driver_ma104_memory_t* _t
   return tool_ring_buffer_pop(&_this->ringBuffer, buffer);
 }
 
-uint32_t mcu_framework_driver_ma104_getReceiverCount(mcu_framework_driver_ma104_memory_t* _this){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_getReceiverCount
+ *----------------------------------------*/
+uint32_t chip_driver_ma104_getReceiverCount(chip_driver_ma104_memory_t* _this){
   return tool_ring_buffer_getCount(&_this->ringBuffer);
 }
 
-bool mcu_framework_driver_ma104_isBusy(mcu_framework_driver_ma104_memory_t* _this){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_isBusy
+ *----------------------------------------*/
+bool chip_driver_ma104_isBusy(chip_driver_ma104_memory_t* _this){
   MACRO_IS_FLAG(_this, FLAG_BUSY, return true);
   return false;
 }
 
-bool mcu_framework_driver_ma104_reset(mcu_framework_driver_ma104_memory_t* _this){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_reset
+ *----------------------------------------*/
+bool chip_driver_ma104_reset(chip_driver_ma104_memory_t* _this){
   if(!_this->fw_pin_reset)
     return false;
 
@@ -332,7 +407,12 @@ bool mcu_framework_driver_ma104_reset(mcu_framework_driver_ma104_memory_t* _this
   return true;
 }
 
-bool mcu_framework_driver_ma104_beginTransfer(mcu_framework_driver_ma104_memory_t* _this){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_beginTransfer
+ *----------------------------------------*/
+bool chip_driver_ma104_beginTransfer(chip_driver_ma104_memory_t* _this){
   //check busy flag, if flag is unset will return false
   if(!(_this->flag & FLAG_BUSY))
     return false;
@@ -343,7 +423,7 @@ bool mcu_framework_driver_ma104_beginTransfer(mcu_framework_driver_ma104_memory_
   };  
   
   //try to transfer data as usart, if successful will return true
-  if(mcu_framework_driver_ma104_autoTransfer(_this, &sendMemory))
+  if(chip_driver_ma104_autoTransfer(_this, &sendMemory))
     return true;
   
   //transfer fail, unset busy
@@ -352,38 +432,56 @@ bool mcu_framework_driver_ma104_beginTransfer(mcu_framework_driver_ma104_memory_
   return false;
 }
 
-bool mcu_framework_driver_ma104_isHardwareBusy(mcu_framework_driver_ma104_memory_t* _this){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_isHardwareBusy
+ *----------------------------------------*/
+bool chip_driver_ma104_isHardwareBusy(chip_driver_ma104_memory_t* _this){
   if(!_this->fw_pin_usbok)
     return false;
   
   return _this->fw_pin_usbok->api->getValue(_this->fw_pin_usbok);
 }
 
-bool mcu_framework_driver_ma104_event_setHardwareBusy(mcu_framework_driver_ma104_memory_t* _this, mcu_framework_driver_ma104_event_hardwareBusy_t event){
+
+
+/*----------------------------------------
+ *  chip_driver_ma104_event_setHardwareBusy
+ *----------------------------------------*/
+bool chip_driver_ma104_event_setHardwareBusy(chip_driver_ma104_memory_t* _this, chip_driver_ma104_event_hardwareBusy_t event){
   _this->event.hardwareBusy = event;
 return true;
 }
 
+
+
 /* *****************************************************************************************
  *    API Link
  */ 
-const mcu_framework_driver_ma104_api_t mcu_framework_driver_ma104_api = {
-  .init               = mcu_framework_driver_ma104_init,
-  .receiverEnable     = mcu_framework_driver_ma104_receiverEnable,
-  .receiverDisable    = mcu_framework_driver_ma104_receiverDisable,
-  .write              = mcu_framework_driver_ma104_write,
-  .writeByte          = mcu_framework_driver_ma104_writeByte,
-  .read               = mcu_framework_driver_ma104_read,
-  .readByte           = mcu_framework_driver_ma104_readByte,
-  .getReceiverCount   = mcu_framework_driver_ma104_getReceiverCount,
-  .isBusy             = mcu_framework_driver_ma104_isBusy,
-  .reset              = mcu_framework_driver_ma104_reset,
-  .beginTransfer      = mcu_framework_driver_ma104_beginTransfer,
-  .isHardwareBusy     = mcu_framework_driver_ma104_isHardwareBusy,
+
+/*----------------------------------------
+ *  chip_driver_ma104_api
+ *----------------------------------------*/
+const struct chip_driver_ma104_api_t chip_driver_ma104_api = {
+  .init               = chip_driver_ma104_init,
+  .receiverEnable     = chip_driver_ma104_receiverEnable,
+  .receiverDisable    = chip_driver_ma104_receiverDisable,
+  .write              = chip_driver_ma104_write,
+  .writeByte          = chip_driver_ma104_writeByte,
+  .read               = chip_driver_ma104_read,
+  .readByte           = chip_driver_ma104_readByte,
+  .getReceiverCount   = chip_driver_ma104_getReceiverCount,
+  .isBusy             = chip_driver_ma104_isBusy,
+  .reset              = chip_driver_ma104_reset,
+  .beginTransfer      = chip_driver_ma104_beginTransfer,
+  .isHardwareBusy     = chip_driver_ma104_isHardwareBusy,
   .event = {
-    .setHardwareBusy  = mcu_framework_driver_ma104_event_setHardwareBusy,
+    .setHardwareBusy  = chip_driver_ma104_event_setHardwareBusy,
   }
 };
+
+
 
 /* *****************************************************************************************
  *    End of file

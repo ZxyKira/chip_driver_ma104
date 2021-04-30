@@ -10,7 +10,7 @@
       <TargetName>m0plus</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\source;..\include;..\reference\mcu_framework\include;..\reference\tool_ring_buffer\include</IncludePath>
+              <IncludePath>..\import;..\source;..\include;..\reference\mcu_framework;..\reference\tool_ring_buffer</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -381,12 +381,22 @@
       </TargetOption>
       <Groups>
         <Group>
+          <GroupName>import</GroupName>
+          <Files>
+            <File>
+              <FileName>chip_driver_ma104.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\include\chip_driver_ma104.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>source</GroupName>
           <Files>
             <File>
-              <FileName>mcu_framework_driver_ma104.c</FileName>
+              <FileName>chip_driver_ma104.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\mcu_framework_driver_ma104.c</FilePath>
+              <FilePath>..\source\chip_driver_ma104.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -394,9 +404,9 @@
           <GroupName>include</GroupName>
           <Files>
             <File>
-              <FileName>mcu_framework_driver_ma104.h</FileName>
+              <FileName>chip_driver_ma104.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\include\mcu_framework_driver_ma104.h</FilePath>
+              <FilePath>..\include\chip_driver_ma104.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -404,39 +414,54 @@
           <GroupName>reference_mcu_framework</GroupName>
           <Files>
             <File>
+              <FileName>fw_adc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\fw_adc.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_adc_channel.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\fw_adc_channel.h</FilePath>
+            </File>
+            <File>
               <FileName>fw_base.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\reference\mcu_framework\include\fw_base.h</FilePath>
+              <FilePath>..\reference\mcu_framework\fw_base.h</FilePath>
+            </File>
+            <File>
+              <FileName>fw_i2cm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\mcu_framework\fw_i2cm.h</FilePath>
             </File>
             <File>
               <FileName>fw_io.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\reference\mcu_framework\include\fw_io.h</FilePath>
+              <FilePath>..\reference\mcu_framework\fw_io.h</FilePath>
             </File>
             <File>
               <FileName>fw_io_pin.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\reference\mcu_framework\include\fw_io_pin.h</FilePath>
+              <FilePath>..\reference\mcu_framework\fw_io_pin.h</FilePath>
             </File>
             <File>
               <FileName>fw_ioint.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\reference\mcu_framework\include\fw_ioint.h</FilePath>
+              <FilePath>..\reference\mcu_framework\fw_ioint.h</FilePath>
             </File>
             <File>
               <FileName>fw_spim.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\reference\mcu_framework\include\fw_spim.h</FilePath>
+              <FilePath>..\reference\mcu_framework\fw_spim.h</FilePath>
             </File>
             <File>
               <FileName>fw_timer.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\reference\mcu_framework\include\fw_timer.h</FilePath>
+              <FilePath>..\reference\mcu_framework\fw_timer.h</FilePath>
             </File>
             <File>
               <FileName>fw_usart.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\reference\mcu_framework\include\fw_usart.h</FilePath>
+              <FilePath>..\reference\mcu_framework\fw_usart.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -444,14 +469,14 @@
           <GroupName>reference_ring_buffer</GroupName>
           <Files>
             <File>
-              <FileName>tool_ring_buffer.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\reference\tool_ring_buffer\include\tool_ring_buffer.h</FilePath>
-            </File>
-            <File>
               <FileName>tool_ring_buffer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\reference\tool_ring_buffer\source\tool_ring_buffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>tool_ring_buffer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\reference\tool_ring_buffer\tool_ring_buffer.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -464,5 +489,14 @@
     <components/>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>mcu_framework_driver_ma104</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>
