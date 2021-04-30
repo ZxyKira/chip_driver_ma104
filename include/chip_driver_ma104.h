@@ -18,7 +18,6 @@ extern "C"{
 
 #include "fw_usart.h"
 #include "fw_io_pin.h"
-#include "tool_ring_buffer.h"
 #include "version.h"
 
 
@@ -65,7 +64,9 @@ extern "C"{
 /* *****************************************************************************************
  *    Typedef List
  */ 
-typedef struct _chip_driver_ma104_memory_t chip_driver_ma104_memory_t;
+typedef struct _chip_driver_ma104_handle_t chip_driver_ma104_handle_t;
+
+
 
 /* *****************************************************************************************
  *    Typedef Function
@@ -74,14 +75,14 @@ typedef struct _chip_driver_ma104_memory_t chip_driver_ma104_memory_t;
 /*----------------------------------------
  *  chip_driver_ma104_execute_t
  *----------------------------------------*/
-typedef void(*chip_driver_ma104_execute_t)(chip_driver_ma104_memory_t* _this, fw_memory_t* data, void* attachment);
+typedef void(*chip_driver_ma104_execute_t)(chip_driver_ma104_handle_t* _this, fw_memory_t* data, void* attachment);
 
 
 
 /*----------------------------------------
  *  chip_driver_ma104_event_hardwareBusy_t
  *----------------------------------------*/
-typedef void(*chip_driver_ma104_event_hardwareBusy_t)(chip_driver_ma104_memory_t* _this);
+typedef void(*chip_driver_ma104_event_hardwareBusy_t)(chip_driver_ma104_handle_t* _this);
 
 
 
@@ -93,24 +94,35 @@ typedef void(*chip_driver_ma104_event_hardwareBusy_t)(chip_driver_ma104_memory_t
  *  chip_driver_ma104_api_t
  *----------------------------------------*/
 struct chip_driver_ma104_api_t{
-  bool     (*init)             (chip_driver_ma104_memory_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset);
-  bool     (*receiverEnable)   (chip_driver_ma104_memory_t* _this, void* buffer, uint32_t size);
-  bool     (*receiverDisable)  (chip_driver_ma104_memory_t* _this);
-  bool     (*write)            (chip_driver_ma104_memory_t* _this, fw_memory_t* data, chip_driver_ma104_execute_t execute, void* attachment);
-  bool     (*writeByte)        (chip_driver_ma104_memory_t* _this, uint8_t data);
-  uint32_t (*read)             (chip_driver_ma104_memory_t* _this, void *buffer, uint32_t size);
-  bool     (*readByte)         (chip_driver_ma104_memory_t* _this, uint8_t* buffer);
-  uint32_t (*getReceiverCount) (chip_driver_ma104_memory_t* _this);
-  bool     (*isBusy)           (chip_driver_ma104_memory_t* _this);
-  bool     (*reset)            (chip_driver_ma104_memory_t* _this);
-  bool     (*beginTransfer)    (chip_driver_ma104_memory_t* _this);
-  bool     (*isHardwareBusy)   (chip_driver_ma104_memory_t* _this);
+  bool     (*init)             (chip_driver_ma104_handle_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset);
+  bool     (*receiverEnable)   (chip_driver_ma104_handle_t* _this, void* buffer, uint32_t size);
+  bool     (*receiverDisable)  (chip_driver_ma104_handle_t* _this);
+  bool     (*write)            (chip_driver_ma104_handle_t* _this, fw_memory_t* data, chip_driver_ma104_execute_t execute, void* attachment);
+  bool     (*writeByte)        (chip_driver_ma104_handle_t* _this, uint8_t data);
+  bool     (*read)             (chip_driver_ma104_handle_t* _this, fw_memory_t* data, chip_driver_ma104_execute_t execute, void* attachment);
+  bool     (*readByte)         (chip_driver_ma104_handle_t* _this, uint8_t* buffer);
+  bool     (*isBusyWrite)      (chip_driver_ma104_handle_t* _this);
+  bool     (*isBusyRead)       (chip_driver_ma104_handle_t* _this);
+  bool     (*reset)            (chip_driver_ma104_handle_t* _this);
+  bool     (*beginTransfer)    (chip_driver_ma104_handle_t* _this);
+  bool     (*isHardwareBusy)   (chip_driver_ma104_handle_t* _this);
   
   struct{
-    bool (*setHardwareBusy)(chip_driver_ma104_memory_t* _this, chip_driver_ma104_event_hardwareBusy_t event);
+    bool (*setHardwareBusy)(chip_driver_ma104_handle_t* _this, chip_driver_ma104_event_hardwareBusy_t event);
   }event;
 };
 
+
+
+/*----------------------------------------
+ *  chip_friver_ma104_xfer_t
+ *----------------------------------------*/
+struct chip_friver_ma104_xfer_t{
+  fw_memory_t memory;
+  uint32_t pointer;
+  void* attachment;
+  chip_driver_ma104_execute_t execute;
+};
 
 
 /* *****************************************************************************************
@@ -118,30 +130,44 @@ struct chip_driver_ma104_api_t{
  */ 
 
 /*----------------------------------------
- *  chip_driver_ma104_memory_t
+ *  chip_driver_ma104_handle_t
  *----------------------------------------*/
-typedef struct _chip_driver_ma104_memory_t{ 
-  fw_usart_handle_t*  fw_usart;
-  fw_io_pin_handle_t* fw_pin_usbok;
-  fw_io_pin_handle_t* fw_pin_reset;
-  tool_ring_buffer_t ringBuffer;
-  uint16_t initFlag;
-  uint16_t flag;
+typedef struct _chip_driver_ma104_handle_t{ 
+  uint32_t enableFlag;
   
   struct{
-    fw_memory_t memory;
-    uint32_t pointer;
-    void* attachment;
-    chip_driver_ma104_execute_t execute;
-  }transfer;
+		
+    fw_usart_handle_t*  usart;
+    fw_io_pin_handle_t* usbok;
+    fw_io_pin_handle_t* reset;
+  }reference;
   
   struct{
+		
     chip_driver_ma104_event_hardwareBusy_t hardwareBusy;
-  }event;
+  }config;  
   
-  uint8_t transferCache[10];
-  uint8_t receiverCache;
-}chip_driver_ma104_memory_t;
+  struct{
+		
+    uint32_t flag;
+    
+    struct{
+      fw_memory_t memory;
+      uint32_t pointer;
+      void* attachment;
+      chip_driver_ma104_execute_t execute;
+    }transfer;
+    
+    struct{
+      fw_memory_t memory;
+      void* attachment;
+      chip_driver_ma104_execute_t execute;
+    }receiver;
+		
+    uint8_t transferCache[10];
+  }handle;
+
+}chip_driver_ma104_handle_t;
 
 
 
@@ -154,19 +180,16 @@ typedef struct _chip_driver_ma104_memory_t{
  */ 
 extern const struct chip_driver_ma104_api_t chip_driver_ma104_api;
 
-extern bool chip_driver_ma104_init(chip_driver_ma104_memory_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset);
-extern bool chip_driver_ma104_receiverEnable(chip_driver_ma104_memory_t* _this, void* buffer, uint32_t size);
-extern bool chip_driver_ma104_receiverDisable(chip_driver_ma104_memory_t* _this);
-extern bool chip_driver_ma104_write(chip_driver_ma104_memory_t* _this, fw_memory_t* data, chip_driver_ma104_execute_t execute, void* attachment);
-extern bool chip_driver_ma104_writeByte(chip_driver_ma104_memory_t* _this, uint8_t data);
-extern uint32_t chip_driver_ma104_read(chip_driver_ma104_memory_t* _this, void *buffer, uint32_t size);
-extern bool chip_driver_ma104_readByte(chip_driver_ma104_memory_t* _this, uint8_t* buffer);
-extern uint32_t chip_driver_ma104_getReceiverCount(chip_driver_ma104_memory_t* _this);
-extern bool chip_driver_ma104_isBusy(chip_driver_ma104_memory_t* _this);
-extern bool chip_driver_ma104_reset(chip_driver_ma104_memory_t* _this);
-extern bool chip_driver_ma104_beginTransfer(chip_driver_ma104_memory_t* _this);
-extern bool chip_driver_ma104_isHardwareBusy(chip_driver_ma104_memory_t* _this);
-extern bool chip_driver_ma104_event_setHardwareBusy(chip_driver_ma104_memory_t* _this, chip_driver_ma104_event_hardwareBusy_t event);
+extern bool chip_driver_ma104_init(chip_driver_ma104_handle_t* _this, fw_usart_handle_t* usart, fw_io_pin_handle_t* usbok, fw_io_pin_handle_t* reset);
+extern bool chip_driver_ma104_write(chip_driver_ma104_handle_t* _this, fw_memory_t* data, chip_driver_ma104_execute_t execute, void* attachment);
+extern bool chip_driver_ma104_writeByte(chip_driver_ma104_handle_t* _this, uint8_t data);
+extern bool chip_driver_ma104_read(chip_driver_ma104_handle_t* _this, fw_memory_t* data, chip_driver_ma104_execute_t execute, void* attachment);
+extern bool chip_driver_ma104_readByte(chip_driver_ma104_handle_t* _this, uint8_t* buffer);
+extern bool chip_driver_ma104_isBusyWrite(chip_driver_ma104_handle_t* _this);
+extern bool chip_driver_ma104_isBusyRead(chip_driver_ma104_handle_t* _this);
+extern bool chip_driver_ma104_beginTransfer(chip_driver_ma104_handle_t* _this);
+extern bool chip_driver_ma104_isHardwareBusy(chip_driver_ma104_handle_t* _this);
+extern bool chip_driver_ma104_event_setHardwareBusy(chip_driver_ma104_handle_t* _this, chip_driver_ma104_event_hardwareBusy_t event);
 
 
 

@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\import;..\source;..\include;..\reference\mcu_framework;..\reference\tool_ring_buffer</IncludePath>
+              <IncludePath>..\import;..\source;..\include;..\reference\mcu_framework</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -462,21 +462,6 @@
               <FileName>fw_usart.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\reference\mcu_framework\fw_usart.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>reference_ring_buffer</GroupName>
-          <Files>
-            <File>
-              <FileName>tool_ring_buffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\reference\tool_ring_buffer\source\tool_ring_buffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>tool_ring_buffer.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\reference\tool_ring_buffer\tool_ring_buffer.h</FilePath>
             </File>
           </Files>
         </Group>
