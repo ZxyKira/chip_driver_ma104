@@ -292,6 +292,7 @@ bool chip_driver_ma104_writeByte(chip_driver_ma104_handle_t* _this, uint8_t data
   
   //write data in to this
   _this->handle.transfer.attachment = (void*)((uint32_t)data);
+	_this->handle.transfer.execute = 0;	
   _this->handle.transfer.memory.ptr = &_this->handle.transfer.attachment;
   _this->handle.transfer.memory.size = 1;
   _this->handle.transfer.pointer = 0;
